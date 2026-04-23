@@ -1,0 +1,9 @@
+selenium==4.24.0
+appium-python-client==4.2.1
+pytest==8.3.3
+pytest-rich
+pytest-html==4.1.1
+allure-pytest
+webdriver-manager==4.0.2
+logging
+pytest-sugar

@@ -1,0 +1,47 @@
+{
+  "login_credentials": {
+    "username": "1274231",
+    "password": "Ucs@123456",
+    "remember_me": true
+  },
+
+  "product_dimension": {
+    "product_barcode": "6291001000029",
+    "height": "155",
+    "width": "7",
+    "depth": "10"
+  }, 
+
+  "service_and_repair": {
+    "phone_number": "500000091", 
+    "customer_name": "Test User",
+    "email": "test@gmail.com",
+    "item_name": "Test Product", 
+    "issue_description_text": "It is not working properly"
+  },
+    
+  "authority_matrix": {
+    "remarks": "Test Remarks by Automation Script"
+  }, 
+
+  "eros_discount_voucher": {
+    "tamayaz_id": "981102026753200",
+    "phone_number": "567347054", 
+    "barcode": "8806094495058", 
+    "discount_amount": "50",
+    "discount_percentage": "10"
+  },
+
+  "login_as_partner": {
+    "partner_username": "99999001",
+    "partner_password": "ucs@123456"
+  },
+
+  "product_facing": {
+    "location_name": "Regular", 
+    "barcode": "6290360350554", 
+    "facing_count": "3", 
+    "rows_count": "4"
+  } 
+
+}

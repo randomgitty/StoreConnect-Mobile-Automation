@@ -1,0 +1,6 @@
+{
+    "device_name": "emulator-5554", 
+    "platform_name": "Android",
+    "automation_name": "UiAutomator2",
+    "app_path": "/path/to/app-stag.apk"
+}

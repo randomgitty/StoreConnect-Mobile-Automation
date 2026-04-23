@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    
+    environment {
+        PYTHON_ENV = 'my_env'
+        ALLURE_RESULTS = 'allure-results'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '📥 Checking out code from GitHub...'
+                checkout scm
+            }
+        }
+        
+        stage('Setup Python Environment') {
+            steps {
+                echo '🐍 Setting up Python virtual environment...'
+                bat '''
+                    python -m venv %PYTHON_ENV%
+                    call %PYTHON_ENV%\\Scripts\\activate.bat
+                    python -m pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+        
+        stage('Run Mobile Tests') {
+            steps {
+                echo '🧪 Running mobile automation tests...'
+                bat '''
+                    call %PYTHON_ENV%\\Scripts\\activate.bat
+                    mkdir reports logs
+                    pytest test_cases/tc_ProductFacingFlow.py ^
+                        --alluredir=%ALLURE_RESULTS% ^
+                        --html=reports/pytest-report.html ^
+                        --self-contained-html ^
+                        -v ^
+                        -s ^
+                        --log-cli-level=INFO
+                '''
+            }
+            post {
+                always {
+                    echo 'Archiving test artifacts...'
+                    archiveArtifacts artifacts: 'reports/*.html, logs/*.log', allowEmptyArchive: true
+                }
+                success {
+                    echo '🎉 All tests passed!'
+                }
+                failure {
+                    echo '❌ Some tests failed - check console output'
+                }
+            }
+        }
+        
+        stage('Generate Allure Report') {
+            steps {
+                echo '📊 Generating Allure report...'
+                script {
+                    allure([
+                        includeProperties: false,
+                        jdk: '',
+                        properties: [],
+                        reportBuildPolicy: 'ALWAYS',
+                        results: [[path: "${ALLURE_RESULTS}"]]
+                    ])
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo '✅ Pipeline execution completed!'
+            cleanWs()
+        }
+        success {
+            echo '🏆 BUILD SUCCESSFUL!'
+        }
+        failure {
+            echo '💥 BUILD FAILED!'
+        }
+    }
+}

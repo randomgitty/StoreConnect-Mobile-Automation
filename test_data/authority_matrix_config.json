@@ -1,0 +1,62 @@
+{
+  "POS Return (Customer)": [
+    {
+      "range": "0.01-500",
+      "approvers": ["Customer Sales Team Leader"]
+    },
+    {
+      "range": "500.01-1000",
+      "approvers": ["Customer Sales Team Leader", "Customer Sales Supervisor"]
+    },
+    {
+      "range": "1000.01-5000",
+      "approvers": ["Customer Sales Team Leader", "Customer Sales Supervisor", "Branch Manager"]
+    },
+    {
+      "range": "5000.01-20000",
+      "approvers": ["Customer Sales Supervisor", "Branch Manager", "Operation Director"]
+    },
+    {
+      "range": "20000.01-50000",
+      "approvers": ["Branch Manager", "Operation Director", "COO"]
+    },
+    {
+      "range": "50000.01-99000000",
+      "approvers": ["Operation Director", "COO", "CEO"]
+    }
+  ],
+
+  "Purchase Return (Branch to Supplier)": [
+    {
+      "range": "0.01-1500",
+      "approvers": ["Receiving Area Team Leader"]
+    },
+    {
+      "range": "1500.01-5000",
+      "approvers": ["Receiving Area Team Leader", "Receiving Area Supervisor", "Customer Sales Team Leader/Supervisor"]
+    },
+    {
+      "range": "5000.01-10000",
+      "approvers": ["Receiving Area Team Leader", "Receiving Area Supervisor", "Customer Sales Manager"]
+    },
+    {
+      "range": "10000.01-99000000",
+      "approvers": ["Receiving Area Supervisor", "Customer Sales Team Leader/Supervisor", "Branch Manager"]
+    }
+  ],
+
+  "Purchase Return (DC to Supplier)": [
+    {
+      "range": "0.01-50000",
+      "approvers": ["Team Leader DC"]
+    },
+    {
+      "range": "50000.01-100000",
+      "approvers": ["Team Leader DC", "Manager DC / Supervisor DC"]
+    },
+    {
+      "range": "100000.01-99000000",
+      "approvers": ["Team Leader DC", "Manager DC / Supervisor DC", "Director Operations"]
+    }
+  ]
+}
