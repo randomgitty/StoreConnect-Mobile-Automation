@@ -25,6 +25,24 @@ pipeline {
                 '''
             }
         }
+
+    stage('Setup APK') {
+            steps {
+                echo '📱 Copying APK from local machine...'
+                bat '''
+                    echo Current workspace: %WORKSPACE%
+                    mkdir resources\\app
+                    if exist "C:\\Users\\MahamAatir\\Desktop\\Automation\\StoreConnect\\StoreConnect\\resources\\app\\app-release.apk" (
+                        copy "C:\\Users\\MahamAatir\\Desktop\\Automation\\StoreConnect\\StoreConnect\\resources\\app\\app-release.apk" resources\\app\\app-release.apk
+                        echo ✅ APK copied successfully!
+                        dir resources\\app
+                    ) else (
+                        echo ❌ APK not found!
+                        exit /b 1
+                    )
+                '''
+            }
+        }    
         
         stage('Run Product Facing Test') {
             steps {
