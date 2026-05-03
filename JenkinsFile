@@ -18,22 +18,22 @@ pipeline {
             steps {
                 echo '🐍 Setting up Python virtual environment...'
                 bat '''
-                    python -m venv %PYTHON_ENV%
-                    call %PYTHON_ENV%\\Scripts\\activate.bat
+                    python -m venv ${PYTHON_ENV}
+                    call ${PYTHON_ENV}\\Scripts\\activate.bat
                     python -m pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
         }
         
-        stage('Run Mobile Tests') {
+        stage('Run Product Facing Test') {
             steps {
-                echo '🧪 Running mobile automation tests...'
+                echo '🧪 Running Product Facing automation test...'
                 bat '''
-                    call %PYTHON_ENV%\\Scripts\\activate.bat
+                    call ${PYTHON_ENV}\\Scripts\\activate.bat
                     mkdir reports logs
-                    pytest test_cases/tc_ProductFacingFlow.py ^
-                        --alluredir=%ALLURE_RESULTS% ^
+                    pytest test_cases/tc_ProductFacingFlow.py::test_product_facing_flow ^
+                        --alluredir=${ALLURE_RESULTS} ^
                         --html=reports/pytest-report.html ^
                         --self-contained-html ^
                         -v ^
@@ -47,10 +47,10 @@ pipeline {
                     archiveArtifacts artifacts: 'reports/*.html, logs/*.log', allowEmptyArchive: true
                 }
                 success {
-                    echo '🎉 All tests passed!'
+                    echo '🎉 Product Facing test passed!'
                 }
                 failure {
-                    echo '❌ Some tests failed - check console output'
+                    echo '❌ Product Facing test failed - check console output'
                 }
             }
         }
