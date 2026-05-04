@@ -20,8 +20,8 @@ pipeline {
             steps {
                 echo '🐍 Setting up Python virtual environment...'
                 bat '''
-                    python -m venv ${PYTHON_ENV}
-                    call ${PYTHON_ENV}\\Scripts\\activate.bat
+                    python -m venv %PYTHON_ENV%
+                    call %PYTHON_ENV%\\Scripts\\activate.bat
                     python -m pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
@@ -33,15 +33,15 @@ pipeline {
                 echo '📱 Downloading APK from Diawi...'
                 bat '''
                     echo Downloading APK from hosted URL...
-                    echo URL: ${APK_URL}
+                    echo URL: %APK_URL%
                     
                     mkdir resources\\app
                     
-                    curl -L -o ${APK_PATH} "${APK_URL}"
+                    curl -L -o %APK_PATH% "%APK_URL%"
                     
-                    if exist "${APK_PATH}" (
+                    if exist "%APK_PATH%" (
                         echo APK downloaded successfully!
-                        dir ${APK_PATH}
+                        dir %APK_PATH%
                     ) else (
                         echo APK download failed - file not found!
                         exit /b 1
@@ -54,10 +54,10 @@ pipeline {
             steps {
                 echo '🧪 Running Product Facing automation test...'
                 bat '''
-                    call ${PYTHON_ENV}\\Scripts\\activate.bat
+                    call %PYTHON_ENV%\\Scripts\\activate.bat
                     mkdir reports logs
                     pytest test_cases/tc_ProductFacingFlow.py::test_product_facing_flow ^
-                        --alluredir=${ALLURE_RESULTS} ^
+                        --alluredir=%ALLURE_RESULTS% ^
                         --html=reports/pytest-report.html ^
                         --self-contained-html ^
                         -v ^
