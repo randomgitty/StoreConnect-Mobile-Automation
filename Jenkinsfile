@@ -45,15 +45,17 @@ pipeline {
                 '''
             }
         }
-        
-        stage('Start Appium Server') {
+        stage('Start Appium') {
             steps {
                 echo '🚀 Starting Appium server...'
-                bat 'start /B appium --address 127.0.0.1 --port 4723 > appium.log 2>&1'
-                bat 'timeout /t 10'
-                echo 'Appium server started!'
+                // Start Appium in background, redirect output to log file
+                bat 'cmd /c "start /b appium --address 127.0.0.1 --port 4723 > appium.log 2>&1"'
+                // Use ping as a reliable sleep command on Windows (avoids timeout redirection issues)
+                bat 'ping 127.0.0.1 -n 11 > nul'
+                echo '✅ Appium server started and ready'
             }
         }
+        
         
         stage('Run Product Facing Test') {
             steps {
