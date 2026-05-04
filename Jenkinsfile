@@ -4,6 +4,8 @@ pipeline {
     environment {
         PYTHON_ENV = 'my_env'
         ALLURE_RESULTS = 'allure-results'
+        APK_URL = 'https://a3.files.diawi.com/app-file/BuJRXBtidTLhCT5bULK1.apk'
+        APK_PATH = 'resources/app/app-release.apk'
     }
     
     stages {
@@ -25,24 +27,35 @@ pipeline {
                 '''
             }
         }
-
-    stage('Setup APK') {
+        
+        stage('Download APK') {
             steps {
-                echo '📱 Copying APK from local machine...'
+                echo '📱 Downloading APK from Diawi...'
                 bat '''
-                    echo Current workspace: %WORKSPACE%
+                    echo "📥 Downloading APK from hosted URL..."
+                    echo "URL: ${APK_URL}"
+                    
                     mkdir resources\\app
-                    if exist "C:\\Users\\MahamAatir\\Desktop\\Automation\\StoreConnect\\StoreConnect\\resources\\app\\app-release.apk" (
-                        copy "C:\\Users\\MahamAatir\\Desktop\\Automation\\StoreConnect\\StoreConnect\\resources\\app\\app-release.apk" resources\\app\\app-release.apk
-                        echo ✅ APK copied successfully!
-                        dir resources\\app
+                    
+                    curl -L -o ${APK_PATH} "${APK_URL}"
+                    
+                    if exist "${APK_PATH}" (
+                        for %%A in (${APK_PATH}) do set APK_SIZE=%%~zA
+                        echo "✅ APK downloaded successfully! Size: !APK_SIZE! bytes"
+                        if !APK_SIZE! GTR 1000000 (
+                            echo "✅ APK validation passed - file size looks good!"
+                            dir ${APK_PATH}
+                        ) else (
+                            echo "⚠️ Warning: APK file seems small, might be corrupted"
+                            exit /b 1
+                        )
                     ) else (
-                        echo ❌ APK not found!
+                        echo "❌ APK download failed - file not found!"
                         exit /b 1
                     )
                 '''
             }
-        }    
+        }
         
         stage('Run Product Facing Test') {
             steps {
@@ -65,40 +78,4 @@ pipeline {
                     archiveArtifacts artifacts: 'reports/*.html, logs/*.log', allowEmptyArchive: true
                 }
                 success {
-                    echo '🎉 Product Facing test passed!'
-                }
-                failure {
-                    echo '❌ Product Facing test failed - check console output'
-                }
-            }
-        }
-        
-        stage('Generate Allure Report') {
-            steps {
-                echo '📊 Generating Allure report...'
-                script {
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        properties: [],
-                        reportBuildPolicy: 'ALWAYS',
-                        results: [[path: "${ALLURE_RESULTS}"]]
-                    ])
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            echo '✅ Pipeline execution completed!'
-            cleanWs()
-        }
-        success {
-            echo '🏆 BUILD SUCCESSFUL!'
-        }
-        failure {
-            echo '💥 BUILD FAILED!'
-        }
-    }
-}
+                   
