@@ -6,6 +6,7 @@ pipeline {
         ALLURE_RESULTS = 'allure-results'
         APK_URL = 'https://a3.files.diawi.com/app-file/BuJRXBtidTLhCT5bULK1.apk'
         APK_PATH = 'resources/app/app-release.apk'
+        APPIUM_PID = ''
     }
     
     stages {
@@ -49,6 +50,19 @@ pipeline {
             }
         }
         
+        stage('Start Appium Server') {
+            steps {
+                echo '🚀 Starting Appium server...'
+                bat '''
+                    echo Starting Appium server in background...
+                    start /B appium --address 127.0.0.1 --port 4723 > appium.log 2>&1
+                    echo Appium server started!
+                    timeout /t 10
+                    echo Waiting for Appium to be ready...
+                '''
+            }
+        }
+        
         stage('Run Product Facing Test') {
             steps {
                 echo '🧪 Running Product Facing automation test...'
@@ -67,7 +81,7 @@ pipeline {
             post {
                 always {
                     echo 'Archiving test artifacts...'
-                    archiveArtifacts artifacts: 'reports/*.html, logs/*.log', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'reports/*.html, logs/*.log, appium.log', allowEmptyArchive: true
                 }
                 success {
                     echo '🎉 Product Facing test passed!'
@@ -97,13 +111,5 @@ pipeline {
     post {
         always {
             echo '✅ Pipeline execution completed!'
-            cleanWs()
-        }
-        success {
-            echo '🏆 BUILD SUCCESSFUL!'
-        }
-        failure {
-            echo '💥 BUILD FAILED!'
-        }
-    }
-}
+            bat '''
+                echo Stopping App
