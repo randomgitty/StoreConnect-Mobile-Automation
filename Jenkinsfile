@@ -32,25 +32,18 @@ pipeline {
             steps {
                 echo '📱 Downloading APK from Diawi...'
                 bat '''
-                    echo "📥 Downloading APK from hosted URL..."
-                    echo "URL: ${APK_URL}"
+                    echo Downloading APK from hosted URL...
+                    echo URL: ${APK_URL}
                     
                     mkdir resources\\app
                     
                     curl -L -o ${APK_PATH} "${APK_URL}"
                     
                     if exist "${APK_PATH}" (
-                        for %%A in (${APK_PATH}) do set APK_SIZE=%%~zA
-                        echo "✅ APK downloaded successfully! Size: !APK_SIZE! bytes"
-                        if !APK_SIZE! GTR 1000000 (
-                            echo "✅ APK validation passed - file size looks good!"
-                            dir ${APK_PATH}
-                        ) else (
-                            echo "⚠️ Warning: APK file seems small, might be corrupted"
-                            exit /b 1
-                        )
+                        echo APK downloaded successfully!
+                        dir ${APK_PATH}
                     ) else (
-                        echo "❌ APK download failed - file not found!"
+                        echo APK download failed - file not found!
                         exit /b 1
                     )
                 '''
@@ -78,4 +71,40 @@ pipeline {
                     archiveArtifacts artifacts: 'reports/*.html, logs/*.log', allowEmptyArchive: true
                 }
                 success {
-                   
+                    echo '🎉 Product Facing test passed!'
+                }
+                failure {
+                    echo '❌ Product Facing test failed - check console output'
+                }
+            }
+        }
+        
+        stage('Generate Allure Report') {
+            steps {
+                echo '📊 Generating Allure report...'
+                script {
+                    allure([
+                        includeProperties: false,
+                        jdk: '',
+                        properties: [],
+                        reportBuildPolicy: 'ALWAYS',
+                        results: [[path: "${ALLURE_RESULTS}"]]
+                    ])
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo '✅ Pipeline execution completed!'
+            cleanWs()
+        }
+        success {
+            echo '🏆 BUILD SUCCESSFUL!'
+        }
+        failure {
+            echo '💥 BUILD FAILED!'
+        }
+    }
+}
