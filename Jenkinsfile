@@ -33,7 +33,6 @@ pipeline {
                 echo '📱 Downloading APK from Diawi...'
                 bat '''
                     echo Downloading APK from hosted URL...
-                    echo URL: %APK_URL%
                     
                     mkdir resources\\app
                     
@@ -41,9 +40,9 @@ pipeline {
                     
                     if exist "%APK_PATH%" (
                         echo APK downloaded successfully!
-                        dir %APK_PATH%
+                        for %%A in (%APK_PATH%) do echo File size: %%~zA bytes
                     ) else (
-                        echo APK download failed - file not found!
+                        echo APK download failed!
                         exit /b 1
                     )
                 '''
