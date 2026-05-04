@@ -6,7 +6,6 @@ pipeline {
         ALLURE_RESULTS = 'allure-results'
         APK_URL = 'https://a3.files.diawi.com/app-file/BuJRXBtidTLhCT5bULK1.apk'
         APK_PATH = 'resources/app/app-release.apk'
-        APPIUM_PID = ''
     }
     
     stages {
@@ -34,11 +33,8 @@ pipeline {
                 echo '📱 Downloading APK from Diawi...'
                 bat '''
                     echo Downloading APK from hosted URL...
-                    
                     mkdir resources\\app
-                    
                     curl -L -o %APK_PATH% "%APK_URL%"
-                    
                     if exist "%APK_PATH%" (
                         echo APK downloaded successfully!
                         for %%A in (%APK_PATH%) do echo File size: %%~zA bytes
@@ -53,13 +49,9 @@ pipeline {
         stage('Start Appium Server') {
             steps {
                 echo '🚀 Starting Appium server...'
-                bat '''
-                    echo Starting Appium server in background...
-                    start /B appium --address 127.0.0.1 --port 4723 > appium.log 2>&1
-                    echo Appium server started!
-                    timeout /t 10
-                    echo Waiting for Appium to be ready...
-                '''
+                bat 'start /B appium --address 127.0.0.1 --port 4723 > appium.log 2>&1'
+                bat 'timeout /t 10'
+                echo 'Appium server started!'
             }
         }
         
@@ -69,25 +61,12 @@ pipeline {
                 bat '''
                     call %PYTHON_ENV%\\Scripts\\activate.bat
                     mkdir reports logs
-                    pytest test_cases/tc_ProductFacingFlow.py::test_product_facing_flow ^
-                        --alluredir=%ALLURE_RESULTS% ^
-                        --html=reports/pytest-report.html ^
-                        --self-contained-html ^
-                        -v ^
-                        -s ^
-                        --log-cli-level=INFO
+                    pytest test_cases/tc_ProductFacingFlow.py::test_product_facing_flow --alluredir=%ALLURE_RESULTS% --html=reports/pytest-report.html --self-contained-html -v -s --log-cli-level=INFO
                 '''
             }
             post {
                 always {
-                    echo 'Archiving test artifacts...'
                     archiveArtifacts artifacts: 'reports/*.html, logs/*.log, appium.log', allowEmptyArchive: true
-                }
-                success {
-                    echo '🎉 Product Facing test passed!'
-                }
-                failure {
-                    echo '❌ Product Facing test failed - check console output'
                 }
             }
         }
@@ -110,6 +89,15 @@ pipeline {
     
     post {
         always {
-            echo '✅ Pipeline execution completed!'
-            bat '''
-                echo Stopping App
+            echo '✅ Pipeline completed!'
+            bat 'taskkill /F /IM node.exe || echo Done'
+            cleanWs()
+        }
+        success {
+            echo '🏆 BUILD SUCCESSFUL!'
+        }
+        failure {
+            echo '💥 BUILD FAILED!'
+        }
+    }
+}
